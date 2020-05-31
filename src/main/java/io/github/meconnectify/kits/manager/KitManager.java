@@ -4,7 +4,6 @@ import io.github.meconnectify.kits.KitsPlugin;
 import io.github.meconnectify.kits.utils.Configs;
 import io.github.meconnectify.kits.utils.InventorySerializer;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 
@@ -36,8 +35,8 @@ public class KitManager {
         config.set(path + ".slot", slot);
         config.set(path + ".cooldown", seconds);
         config.set(path + ".material", material);
-        config.set(path + ".inventory", toBase64(inventory));
-        config.set(path + ".armor", itemStackArrayToBase64(inventory.getArmorContents()));
+        config.set(path + ".inventory", toBase64(inventory.getContents()));
+        config.set(path + ".armor", toBase64(inventory.getArmorContents()));
 
         //Saving the configuration
         config.save();
@@ -57,15 +56,16 @@ public class KitManager {
 
     public void giveKit(Player player, String kit) throws Exception {
         String path = "kits." + kit;
-        Inventory inventory;
+        ItemStack[] inventoryContents;
         ItemStack[] armor;
 
         /*
         Attempt to get the itemstack arrays from the config,
         If it fails, It'll throw an exception
          */
-        inventory = InventorySerializer.fromBase64(config.get(path + ".inventory"));
-        armor = InventorySerializer.itemStackArrayFromBase64(config.get(path + ".armor"));
+
+        inventoryContents = InventorySerializer.fromBase64(config.get(path + ".inventory"));
+        armor = InventorySerializer.fromBase64(config.get(path + ".armor"));
 
         /*
         Of course making a loop to do this would be easier,
@@ -86,9 +86,10 @@ public class KitManager {
         it will not throw when applying to the inventory
         because we already set the empty ones to air
          */
-        for (int i = 0; i < inventory.getContents().length; i++) {
-            if (inventory.getContents()[i] != null)
-                contents[i] = inventory.getContents()[i];
+
+        for (int i = 0; i < inventoryContents.length; i++) {
+            if (inventoryContents[i] != null)
+                contents[i] = inventoryContents[i];
         }
 
         /*
@@ -96,11 +97,6 @@ public class KitManager {
          */
         player.getInventory().setArmorContents(armor);
         player.getInventory().addItem(contents);
-
-        /*
-        Lets not forget setting the player on cooldown
-         */
-        //TODO: Set player on cooldown
     }
 
     public int getCooldown(String kit) {

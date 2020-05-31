@@ -54,6 +54,7 @@ public class GUIHandler implements Listener {
                 dataManager.setOnCooldown(player.getUniqueId(), kit);
                 player.sendMessage(color("&cSuccessfully received kit"));
             } catch (Exception ex) {
+                ex.printStackTrace();
                 player.sendMessage(color("&cAn error occurred while giving you the kit."));
             }
             //Cancel the inventory interaction and close the inventory
